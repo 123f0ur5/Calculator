@@ -1,4 +1,5 @@
 from tkinter import SW, Button, Label, Tk
+import keyboard
 
 #n1 is the first input number, n2 is the second, operator is the operation, comma is to check if the number has comma, same as comma2, ans is to check if answer was call'd
 n1 = ''; n2 = ''; operator = ''; comma = False; comma2 = False; ans = False
@@ -170,6 +171,7 @@ class Calculator:
         window.config(width="400", height="530")
         window.minsize(400,530)
         window.maxsize(400,530)
+
         
         #Creating Display Text
         self.label_value = Label(window, text='0', font=('', 32), justify='right', width='19')
@@ -226,6 +228,29 @@ class Calculator:
         button_divide.grid(row=0, column=1, padx=10, pady=5)
         button_modulus.grid(row=0, column=0, padx=10, pady=5)
 
+        #Get Keyboard numbers input and call function numb
+        keyboard.on_press_key("0", lambda _:self.numb(0))
+        keyboard.on_press_key("1", lambda _:self.numb(1))
+        keyboard.on_press_key("2", lambda _:self.numb(2))
+        keyboard.on_press_key("3", lambda _:self.numb(3))
+        keyboard.on_press_key("4", lambda _:self.numb(4))
+        keyboard.on_press_key("5", lambda _:self.numb(5))
+        keyboard.on_press_key("6", lambda _:self.numb(6))
+        keyboard.on_press_key("7", lambda _:self.numb(7))
+        keyboard.on_press_key("8", lambda _:self.numb(8))
+        keyboard.on_press_key("9", lambda _:self.numb(9))
+
+        #Get operators input and call their respective function
+        keyboard.on_press_key("-", lambda _:self.operator('-'))
+        keyboard.on_press_key("+", lambda _:self.operator('+'))
+        keyboard.on_press_key("*", lambda _:self.operator('x'))
+        keyboard.on_press_key("/", lambda _:self.operator('/'))
+        keyboard.on_press_key("%", lambda _:self.operator('%'))
+        keyboard.on_press_key("=", lambda _:self.result())
+        keyboard.on_press_key("enter", lambda _:self.result())
+        keyboard.on_press_key(",", lambda _:self.add_comma())
+        keyboard.on_press_key("del", lambda _:self.clear())
+        keyboard.on_press_key("backspace", lambda _:self.delete())
         window.mainloop()
 
 Calculator()
