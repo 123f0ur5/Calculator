@@ -1,8 +1,10 @@
-from tkinter import N, SW, Button, Label, Tk
+from tkinter import SW, Button, Label, Tk
 
-n1 = ''; n2 = ''; operator = ''; comma = False; comma2 = False; res = False
+#n1 is the first input number, n2 is the second, operator is the operation, comma is to check if the number has comma, same as comma2, ans is to check if answer was call'd
+n1 = ''; n2 = ''; operator = ''; comma = False; comma2 = False; ans = False
 
 class Calculator:
+    #This function save numbers in each variable
     def numb(self, n):
         global n1; global n2; global operator
         if operator == '':
@@ -11,13 +13,15 @@ class Calculator:
         else:
             n2 += str(n)
             self.refresh_value()
-
+    
+    #This function define the operator
     def operator(self, op):
         global operator; global n2
-        if n2 == '':
+        if n1 != '' and n2 == '':
             operator = op
             self.refresh_value()
     
+    #This function put comma in the numbers, they do all the checking if number has comma or not
     def add_comma(self):
         global n1; global n2; global operator; global comma; global comma2
         if not comma and n1 != '' and n2 == '' and operator == '':
@@ -29,6 +33,7 @@ class Calculator:
             comma2 = True
             self.refresh_value()
     
+    #That function turns the number negative or positive
     def minus_op(self):
         global n1; global n2; global operator
         if n1 != '' and operator == '':
@@ -46,81 +51,117 @@ class Calculator:
                 n2 = n2.rjust(1 + len(n2), '-')
                 self.refresh_value()
 
+    #That function changes the comma for a period to transform the number in float
     def remove_comma(self, n):
-        print(n)
         if ',' in str(n):
             n = str(n).replace(',','.')
             return n
         else: 
             return n
     
+    #This function do the opposite, transforming the point into a comma
     def return_comma(self, n):
-        print(n)
         if '.' in str(n):
             n = str(n).replace('.',',')
             return n
         else:
             return n
 
+    #This function just format the number to remove undesirables periods or zeroes 
+    def format_number(self, n):
+        if float(n)%1==0:
+            n = int(n)
+        else:
+            n = self.return_comma(n)
+        n = str(n)
+        return n
+
+    #This function do the calcs depending on what operators is selected
     def result(self):
-        global n1; global n2; global operator; global res
+        global n1; global n2; global operator; global ans
         if n1 != '' and n2 != '' and operator != '':
             num1 = n1; num1 = float(self.remove_comma(num1))
             num2 = n2; num2 = float(self.remove_comma(num2))
         
             if operator == '+':
                 n1 = num1 + num2
-                n1 = str(n1)
-                res = True
+                n1 = self.format_number(n1)
+                ans = True
                 self.refresh_value()
             elif operator == '-':
                 n1 = num1 - num2
-                n1 = str(n1)
-                res = True
+                n1 = self.format_number(n1)
+                ans = True
                 self.refresh_value()
-            elif operator == '*':
+            elif operator == 'x':
                 n1 = num1 * num2
-                n1 = str(n1)
-                res = True
+                n1 = self.format_number(n1)
+                ans = True
                 self.refresh_value()
             elif operator == '/':
                 n1 = num1 / num2
-                n1 = str(n1)
-                res = True
+                n1 = self.format_number(n1)
+                ans = True
                 self.refresh_value()
             elif operator == '%':
                 n1 = num1 % num2
-                n1 = str(n1)
-                res = True
+                n1 = self.format_number(n1)
+                ans = True
                 self.refresh_value()
     
-    def print_value(self, n, **kwargs):
-        print(kwargs.get('op'))
-        if kwargs.get('op') != None:
-            n = self.remove_comma(n)
-            self.label_value.config(text='{}{}{}'.format(n, kwargs.get('op'), kwargs.get('n_two')))
-        else:
-                if n%1==0:
-                    print('entrei sem decimal')
-                    self.label_value.config(text='{:.0f}'.format(n))
-                elif n%1!=0:
-                    print('entrei com decimal')
-                    n = self.return_comma(n)
-                    self.label_value.config(text='{}'.format(n))
-
-    def refresh_value(self):
-        global operator; global n1; global n2; global res; global comma; global comma2
-        if res:
-            self.print_value(float(n1))
-            operator = ''; n2 = ''; res = False; comma2 = False
-            if ',' in n1:
-                comma = True
-            else:
+    #This function reset the program to the start, resetting all variables
+    def clear(self):
+        global n1; global n2; global operator; global ans; global comma2; global comma
+        n1 = ''; n2 = ''; operator = ''; comma = False; comma2 = False; ans = False
+        self.label_value.config(text='0')
+    
+    def delete(self):
+        global n1; global n2; global operator; global comma; global comma2
+        if n1 != '' and operator == '':
+            if n1[len(n1)-1] == ',':
                 comma = False
-        elif operator == '':
-            self.print_value(float(n1))
+            n1 = n1[:-1]
+            self.refresh_value()
+        if n1 == '' and operator == '':
+            self.label_value.config(text='0')
+        if len(n1) == 1 and n1[0] == '-' and n2 == '' and operator == '':
+            n1 = ''
+            self.label_value.config(text='0')
+        if n2 != '' and operator != '':
+            if n2[len(n2)-1] == ',':
+                comma2 = False
+            n2 = n2[:-1]
+            self.refresh_value()
+        if n2 == '' and operator != '':
+            self.label_value.config(text=n1+operator+'0')
+        if len(n2) == 1 and n2[0] == '-':
+            n2 = ''
+            self.label_value.config(text=n1+operator+'0')
+            
+
+    #This function is responsible for updating the label that shows the numbers and operators
+    def refresh_value(self):
+        global n1; global n2; global operator; global ans; global comma2; global comma
+        num1 = 0
+        #Change the label values depending in which step the user is
+        if ans:
+            if n1 != '':
+                num1 = float(self.remove_comma(n1))
+            #Check if num1 has any decimal number if not, it transform it in int and let user put comma on the number
+            if num1%1==0:
+                comma = False
+                num1 = int(num1)
+            ans = False; n2 = ''; operator = ''; comma2 = False
+            num1 = str(self.return_comma(num1))
+            self.label_value.config(text=num1)
+            if n1 == '0':
+                n1 = ''
+        elif n2 != '':
+            self.label_value.config(text=n1+operator+n2)
+        elif operator != '':
+            self.label_value.config(text=n1+operator)
         else:
-            self.print_value(float(n1), op = operator, n_two = n2)
+            self.label_value.config(text=n1)
 
 
     def __init__(self):
@@ -131,7 +172,7 @@ class Calculator:
         window.maxsize(400,530)
         
         #Creating Display Text
-        self.label_value = Label(window, text='0', font=('', 40), justify='right', width='19')
+        self.label_value = Label(window, text='0', font=('', 32), justify='right', width='19')
 
         #Creating buttons
         button_zero = Button(window, text='0', justify='center', width='5', height='2', font=('', 18), command=lambda: self.numb(0))
@@ -151,10 +192,10 @@ class Calculator:
         button_equal = Button(window, text='=', justify='center', width='5', height='2', font=('', 18), command=lambda: self.result())
         button_addition = Button(window, text='+', justify='center', width='5', height='2', font=('', 18), command=lambda: self.operator('+'))
         button_subtraction = Button(window, text='_', justify='center', width='5', height='2', font=('', 18), command=lambda: self.operator('-'))
-        button_multiply = Button(window, text='x', justify='center', width='5', height='2', font=('', 18), command=lambda: self.operator('*'))
+        button_multiply = Button(window, text='x', justify='center', width='5', height='2', font=('', 18), command=lambda: self.operator('x'))
         button_divide = Button(window, text='/', justify='center', width='5', height='2', font=('', 18), command=lambda: self.operator('/'))
-        button_delete = Button(window, text='del', justify='center', width='5', height='2', font=('', 18))
-        button_clear = Button(window, text='C', justify='center', width='5', height='2', font=('', 18))
+        button_delete = Button(window, text='del', justify='center', width='5', height='2', font=('', 18), command=lambda: self.delete())
+        button_clear = Button(window, text='C', justify='center', width='5', height='2', font=('', 18), command=lambda: self.clear())
         button_modulus = Button(window, text='%', justify='center', width='5', height='2', font=('', 18), command=lambda: self.operator('%'))
 
         
@@ -187,4 +228,4 @@ class Calculator:
 
         window.mainloop()
 
-c1 = Calculator()
+Calculator()
